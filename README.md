@@ -17,8 +17,16 @@ Licenza: GPL
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
- ## Requisiti:
+## Requisiti:
   - Python 2.7
   - numpy
   - scipy
   - matplotlib
+
+## Dati grezzi
+
+I dati grezzi necessari per l'elaborazione si possono scaricare da
+https://github.com/pcm-dpc/COVID-19.git
+
+La cartella contenente i dati grezzi deve essere allo stesso livello del
+presente programma.
