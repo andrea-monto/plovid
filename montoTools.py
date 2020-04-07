@@ -1,7 +1,10 @@
-# -*- python -*-
-""" ============================================================================ 
+# -*- coding: utf-8 -*-
+""" 
+polimiTools.py
 
-                              MONTOCLASS_SCRIPTS
+============================================================================ 
+
+                              POLIMI_SCRIPTS
 
    file: montoTools.py
 
@@ -16,7 +19,8 @@
        Andrea Montorfano
        andrea.montorfano.it@hotmail.com
 
- ============================================================================ """
+ ============================================================================
+"""
 
 import os
 import re
@@ -30,6 +34,8 @@ try:
 except ImportError as e:
     HAVE_MATPLOTLIB=False
 
+__author__ = "Andrea Montorfano"
+    
 # ------------------------------------------------------------------------------
 # Line setting for 2D plots
 
@@ -49,6 +55,11 @@ col_s = ['bs', 'rs', 'gs', 'cs', 'ms', 'ys', 'ks', 'bs', 'rs', 'gs', 'cs', \
 col_l1 = ['b-', 'r-', 'g-', 'c-', 'm-', 'y-', 'k-', 'b-', 'r-', 'g-', 'c-', \
               'm-', 'y-', 'k-']
 
+col_d1 = ['b.-', 'r.-', 'g.-', 'c.-', 'm.-', 'y.-', 'k.-', 'b.-', 'r.-', 'g.-', 'c.-', \
+              'm.-', 'y.-', 'k.-']
+
+col_colorblind = ['b-','k-','g-','c-','b--','k--','g--','c--','b.-','k.-','g.-','c.-']
+
 col_mix = ['b-','r-','g-','k-','y-','b--','r--','g--','k--','y--','b:','r:',\
                'g:','k:','y:']
 
@@ -59,6 +70,7 @@ col_l3 = ['b:', 'r:', 'g:', 'c:', 'm:', 'y:', 'k:', 'b:', 'r:', 'g:', 'c:', \
               'm:', 'y:', 'k:']
 
 mark = ['ko', 'ks', 'k^', 'kD', 'k*', 'kv', 'k+']
+
 
 mark_l1 = ['ko-', 'ks-', 'k^-', 'kD-', 'kv-', 'k+-']
 
@@ -76,17 +88,17 @@ class bcolors:
 
 
 def Info(msg):
-    print bcolors.OKBLUE + " [I]  " + msg + bcolors.ENDC
+    print(bcolors.OKBLUE + " [I]  " + msg + bcolors.ENDC)
 
 def InfoW(msg):
-    print bcolors.OKGREEN + " [I]  " + msg + bcolors.ENDC
+    print(bcolors.OKGREEN + " [I]  " + msg + bcolors.ENDC)
 
 
 def Warn(msg):
-    print bcolors.WARNING + " [W]  " + msg + bcolors.ENDC
+    print(bcolors.WARNING + " [W]  " + msg + bcolors.ENDC)
 
 def Err(msg):
-    print bcolors.FAIL + " [E]  " + msg + bcolors.ENDC
+    print(bcolors.FAIL + " [E]  " + msg + bcolors.ENDC)
 
 
 # ------------------------------------------------------------------------------
@@ -101,7 +113,7 @@ def mkDir(folder):
             #print "[I] %s already exists." % folder
             return True
         else:
-            print "[E] Cannot access folder %s for writing." % folder
+            print("[E] Cannot access folder %s for writing." % folder)
             return False
 
 
@@ -113,7 +125,7 @@ def dictLookup(dtype, dictName, key, mustRead=True):
     genStrInt = """\s+([0-9]*)"""
     genStrFloat = """\s+([0-9]*\.?[0-9]*[e|E]?[\+|\-]?[0-9]*)"""
     genStrBool = """\s+(True|true|1|False|false|0)"""
-    genStrStr = """\s+([\-A-Za-z0-9_\/\.]*)"""
+    genStrStr = """\s+\"?([\-A-Za-z0-9_\/\.]*)\"?"""
     lb = """^\s*"""
 
     try:
@@ -192,11 +204,11 @@ def dictLookupOrDefault(dtype, dictName, key, defValue):
 
 defaultFont = {'family' : 'Courier New',\
                    'weight' : 'normal', \
-                   'size'   : 8,\
+                   'size'   : 12,\
                    'style'  : 'normal'
                }
 
-def setProperties(fig, isForPaper = True):
+def setProperties(fig, isForPaper = True, fontProp=defaultFont):
     if isForPaper:
         fig.set(figwidth=3.5,figheight=2.7,facecolor='w',edgecolor='k')
     else:
@@ -204,10 +216,10 @@ def setProperties(fig, isForPaper = True):
 
     ax=fig.gca();
     ax.grid(color='k', linestyle=":", linewidth=.115)
-    ax.set_xlabel(ax.get_xlabel(),fontdict=defaultFont,labelpad=4)
-    ax.set_ylabel(ax.get_ylabel(),fontdict=defaultFont,labelpad=4)
-    setp(ax.get_xticklabels(), fontsize=defaultFont['size'],family=defaultFont["family"])
-    setp(ax.get_yticklabels(), fontsize=defaultFont['size'],family=defaultFont["family"])
+    ax.set_xlabel(ax.get_xlabel(),fontdict=fontProp,labelpad=4)
+    ax.set_ylabel(ax.get_ylabel(),fontdict=fontProp,labelpad=4)
+    setp(ax.get_xticklabels(), fontsize=fontProp['size'],family=fontProp["family"])
+    setp(ax.get_yticklabels(), fontsize=fontProp['size'],family=fontProp["family"])
 
     if isForPaper:
         ax.set_position([0.22, 0.15, 0.74, 0.8])
@@ -228,6 +240,7 @@ def setProperties(fig, isForPaper = True):
     for child in ax.get_children():
         if child is matplotlib.text.Annotation:
             child.set_size(4)
+        
 
 # ------------------------------------------------------------------------------
 # read an XY text file. Separator is space and comment is '#'
@@ -241,7 +254,12 @@ def readFile(fileName, startCol=1, endCol=None, quiet=False):
                 if line.split() == [] or line.split()[0][0]=='#' :
                     pass
                 else:
-                    x.append(float(line.split()[0]))
+                    try:
+                        x.append(float(line.split()[0]))
+                    except ValueError as e:
+                        # Warn("error in reading: %s. Try to go on" % line)
+                        continue
+                    
                     t = line.split()[startCol:endCol]
                     iterable = (float(ty) for ty in t);
                     y.append(np.fromiter(iterable,np.float))
@@ -249,8 +267,7 @@ def readFile(fileName, startCol=1, endCol=None, quiet=False):
     except IOError as e:
         if not quiet:
             Warn("File %s not found" % fileName)
-
-            return (None,None)
+        return (None,None)
 
 # ------------------------------------------------------------------------------
 
@@ -270,4 +287,20 @@ def readCsv(fileName, keys, quiet=False):
             Warn("File %s not found" % fileName)
         return None
 
+
+# ------------------------------------------------------------------------------
+
+def plotxy(files):
+    h = figure()
+    ax = gca()
+    for (i,iFile) in enumerate(files):
+        x,y = readFile(iFile)
+        if x is None: 
+            continue
+        ax.plot(x,y[:,0],col_mix[i])
+    return h
+
+
+
 # ============================== END-OF-FILE ================================= #
+

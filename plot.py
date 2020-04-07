@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # -*- python -*-
 """ ============================================================================ 
 
@@ -33,8 +34,8 @@ keys = ['data', 'stato', 'ricoverati_con_sintomi', 'terapia_intensiva',
 'variazione_totale_positivi', 'nuovi_positivi', 'dimessi_guariti', 'deceduti',
  'totale_casi', 'tamponi', 'note_it', 'note_en']
 
-allData=[]
-t = []
+allData = []
+t       = []
 nuovi_positivi=[]
 totale_positivi=[]
 tamponi = []
@@ -47,6 +48,13 @@ def runningAvg(xi, N):
 # equazione logistica
 def f(x,L,x0,k):
     return L/(1+np.exp(-k*(x-x0)))
+
+def N2(N) -> int:
+    if N%2>0:
+        return int((N-1)/2)
+    else:
+        return N/2
+    
 
 # carica i dati:
 # - nuovi positivi
@@ -64,7 +72,7 @@ with open(datafile) as fp:
 N=7
 h=plt.figure(1);
 ax = h.add_subplot(111)
-ax.plot(t[N/2:-N/2+1],runningAvg(nuovi_positivi,N),'k.-')
+ax.plot(t[N2(N):-N2(N)],runningAvg(nuovi_positivi,N),'k.-')
 
 ax.plot(t,nuovi_positivi,'o')
 for curve in ax.get_lines():
@@ -103,7 +111,7 @@ popt,pcov = sp.optimize.curve_fit(f, t_days, np.asarray(totale_positivi),[50000,
 ti = np.arange(0,t_days[-1]*2);
 
 yy = f(ti,*popt)
-xi = [t[0] + datetime.timedelta(tii) for tii in ti]
+xi = [t[0] + datetime.timedelta(int(tii)) for tii in ti]
 ax.plot(xi,yy,'k--')
 
 ax.set_xlabel('data')
