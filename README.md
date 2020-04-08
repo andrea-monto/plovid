@@ -18,7 +18,7 @@ Licenza: GPL
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
 ## Requisiti:
-  - Python 2.7
+  - Python 3
   - numpy
   - scipy
   - matplotlib
