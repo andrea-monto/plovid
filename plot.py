@@ -47,9 +47,11 @@ fontDict = {'family' : 'Sans Serif',\
 
 # calcolo media mobile
 def runningAvg(xi, N):
-    cumum = np.cumsum(np.insert(xi, 0, 0))
+    cumsum = np.cumsum(np.insert(xi, 0, 0))
     return (cumsum[N:] - cumsum[:-N]) / float(N)
 
+def smooth(t,xi,N):
+    return t[N2(N):-N2(N)],runningAvg(xi,N)
 
 def f(x,L,x0,k):
     """Equazione logistica"""
@@ -98,23 +100,37 @@ def calcFit(t,casi):
 
 def plotData(t,casi):
     figList = []
-    h=plt.figure(1);
+
+    # equazione logistica
+    h=plt.figure();
     ax = h.add_subplot(111)
     ax.plot(t,casi,'b');
-
     mnt.setProperties(h,True)
     ax.grid(True)
     ax.set_xlabel('data')
     ax.set_ylabel('totale casi')
     ax.set_yscale('log')
-
     ti,totaleCasiFit = calcFit(t,casi)
     tFit = [t[0] + datetime.timedelta(int(tii)) for tii in ti]
     ax.plot(tFit,totaleCasiFit,'k--')
     figList.append(h)
 
-    # figura 2: derivata della curva logistica
-    h=plt.figure(2)
+    # lo stesso, ma in scala lineare
+    h=plt.figure();
+    ax = h.add_subplot(111)
+    ax.plot(t,casi,'b');
+    mnt.setProperties(h,True)
+    ax.grid(True)
+    ax.set_xlabel('data')
+    ax.set_ylabel('totale casi')
+    ti,totaleCasiFit = calcFit(t,casi)
+    tFit = [t[0] + datetime.timedelta(int(tii)) for tii in ti]
+    ax.plot(tFit,totaleCasiFit,'k--')
+    figList.append(h)
+
+    
+    # derivata della curva logistica
+    h=plt.figure()
     ax=h.add_subplot(111)
     ax.set_xlabel('data')
     ax.set_ylabel('differenza casi')
@@ -126,14 +142,14 @@ def plotData(t,casi):
 
 if __name__ == '__main__':
     allData = loadData(dataFile);
-
     t = allData["t"]
     casi = allData["totale_casi"]
     figs = plotData(t,casi)
-
-    for h in figs:
+    figs += plotData(t[N2(N):-N2(N)],runningAvg(casi,N))
+    for i,h in enumerate(figs):
         mnt.setProperties(h,True,fontDict)
         ax=plt.gca()
         plt.setp(ax.get_xticklabels(), rotation=90)
         ax.set_position([0.22, 0.25, 0.74, 0.8])
-    plt.show()
+        h.savefig('Figura_%d.png'%i)
+#    plt.show()
