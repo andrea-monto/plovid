@@ -105,7 +105,6 @@ def plotData(t,casi):
     h=plt.figure();
     ax = h.add_subplot(111)
     ax.plot(t,casi,'b');
-    mnt.setProperties(h,True)
     ax.grid(True)
     ax.set_xlabel('data')
     ax.set_ylabel('totale casi')
@@ -119,7 +118,6 @@ def plotData(t,casi):
     h=plt.figure();
     ax = h.add_subplot(111)
     ax.plot(t,casi,'b');
-    mnt.setProperties(h,True)
     ax.grid(True)
     ax.set_xlabel('data')
     ax.set_ylabel('totale casi')
@@ -147,9 +145,10 @@ if __name__ == '__main__':
     figs = plotData(t,casi)
     figs += plotData(t[N2(N):-N2(N)],runningAvg(casi,N))
     for i,h in enumerate(figs):
-        mnt.setProperties(h,True,fontDict)
-        ax=plt.gca()
+        plt.figure(i)
+        mnt.setProperties(h,False,fontDict)
+        ax=h.gca()
         plt.setp(ax.get_xticklabels(), rotation=90)
-        ax.set_position([0.22, 0.25, 0.74, 0.8])
+        ax.set_position([0.22, 0.15, 0.74, 0.8])
         h.savefig('Figura_%d.png'%i)
 #    plt.show()
