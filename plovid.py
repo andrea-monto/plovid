@@ -73,7 +73,7 @@ def dydt(t ,y):
     return np.diff(y)/np.diff(tDays)
 
 
-def loadData(datafile):
+def loadData(datafile, region=None):
     """ Carica i dati:
         - nuovi positivi
         - totale dei casi
@@ -84,6 +84,10 @@ def loadData(datafile):
     with open(datafile) as fp:
         data = csv.DictReader(fp,quoting=csv.QUOTE_NONE)
         for row in data:
+            if region is None:
+                pass
+            elif region != row['denominazione_regione']:
+                continue
             t.append(datetime.datetime.strptime(row['data'], '%Y-%m-%dT%H:%M:%S'))
             nuoviPositivi.append(float(row['nuovi_positivi']))
             totaleCasi.append(float(row['totale_casi']))
@@ -93,12 +97,12 @@ def loadData(datafile):
 def calcFit(t,casi):
     """ Calcolo fit della curva logistica"""
     tDays = tVec(t)
-    popt,pcov = sp.optimize.curve_fit(f, tDays, casi,[50000,25,2])
+    popt,pcov = sp.optimize.curve_fit(f, tDays, casi,[20000,25,2])
     ti = np.arange(0,tDays[-1]*2);
     casiFit = f(ti,*popt)
     return ti,casiFit
 
-def plotData(t,casi):
+def plotData(t,casi,doFit=True):
     figList = []
 
     # equazione logistica
@@ -109,9 +113,10 @@ def plotData(t,casi):
     ax.set_xlabel('data')
     ax.set_ylabel('totale casi')
     ax.set_yscale('log')
-    ti,totaleCasiFit = calcFit(t,casi)
-    tFit = [t[0] + datetime.timedelta(int(tii)) for tii in ti]
-    ax.plot(tFit,totaleCasiFit,'k--')
+    if doFit:
+        ti,totaleCasiFit = calcFit(t,casi)
+        tFit = [t[0] + datetime.timedelta(int(tii)) for tii in ti]
+        ax.plot(tFit,totaleCasiFit,'k--')
     figList.append(h)
 
     # lo stesso, ma in scala lineare
@@ -121,11 +126,11 @@ def plotData(t,casi):
     ax.grid(True)
     ax.set_xlabel('data')
     ax.set_ylabel('totale casi')
-    ti,totaleCasiFit = calcFit(t,casi)
-    tFit = [t[0] + datetime.timedelta(int(tii)) for tii in ti]
-    ax.plot(tFit,totaleCasiFit,'k--')
+    if doFit:
+        ti,totaleCasiFit = calcFit(t,casi)
+        tFit = [t[0] + datetime.timedelta(int(tii)) for tii in ti]
+        ax.plot(tFit,totaleCasiFit,'k--')
     figList.append(h)
-
     
     # derivata della curva logistica
     h=plt.figure()
@@ -133,7 +138,9 @@ def plotData(t,casi):
     ax.set_xlabel('data')
     ax.set_ylabel('differenza casi')
     ax.plot(t[1:],dydt(t,casi),'b-')
-    ax.plot(tFit[1:],dydt(tFit,totaleCasiFit),'k--')
+
+    if doFit:
+        ax.plot(tFit[1:],dydt(tFit,totaleCasiFit),'k--')
     figList.append(h)
 
     return figList
