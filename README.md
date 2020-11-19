@@ -28,5 +28,4 @@ Licenza: GPL
 I dati grezzi necessari per l'elaborazione si possono scaricare da
 https://github.com/pcm-dpc/COVID-19.git
 
-La cartella contenente i dati grezzi deve essere allo stesso livello del
-presente programma.
+La cartella contenente i dati grezzi deve essere allo stesso livello di questo programma.
